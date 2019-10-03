@@ -1,0 +1,142 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: 'Core Build Resources'
+
+Metadata:
+    AWS::CloudFormation::Interface:
+        ParameterGroups:
+          - Label: {default: 'Github Parameters'}
+            Parameters:
+              - GithubToken
+
+Parameters:
+    GithubToken:
+        Description: 'Github OAuth Token with full permissions on admin:repo_hook and repo'
+        Type: String
+        NoEcho: true
+
+Mappings: {}
+
+Conditions: {}
+
+Resources:
+    ArtifactStore:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        Properties:
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                  - ServerSideEncryptionByDefault:
+                        SSEAlgorithm: AES256
+            AccessControl: Private
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls: True
+                BlockPublicPolicy: True
+                IgnorePublicAcls: True
+                RestrictPublicBuckets: True
+            VersioningConfiguration:
+                Status: Enabled
+            LifecycleConfiguration:
+                Rules:
+                  - Id: CleanupIncomplete
+                    Status: Enabled
+                    AbortIncompleteMultipartUpload:
+                        DaysAfterInitiation: 10
+                  - Id: CleanupCompletedVersions
+                    Status: Enabled
+                    NoncurrentVersionExpirationInDays: 10
+                  - Id: CleanupCompleted
+                    Status: Enabled
+                    ExpirationInDays: 10
+
+    ArtifactStoreParameter:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'Artifacts Store'
+            Type: String
+            Name: '/artifacts-store'
+            Value: !Ref ArtifactStore
+
+    GithubTokenParameter:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'Github Token for HellUpLine'
+            Type: String
+            Name: '/github/token/hellupline'
+            Value: !Ref GithubToken
+
+    #
+    # Managed Policies for Build
+    #
+    ArtifactStorePolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            Description: 'ArtifactStore Policy'
+            Path: /
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 's3:GetObject'
+                      - 's3:PutObject'
+                    Resource:
+                      - !Sub '${ArtifactStore.Arn}/*'
+
+    ArtifactStorePolicyParameter:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'Artifacts Store Policy Arn'
+            Type: String
+            Name: '/managed-policies/artifacts-store'
+            Value: !Ref ArtifactStorePolicy
+
+    LogsPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            Description: 'CodePipeline Logs Policy'
+            Path: /
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 'logs:CreateLogGroup'
+                      - 'logs:CreateLogStream'
+                      - 'logs:PutLogEvents'
+                    Resource:
+                      - !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*'
+
+    LogsPolicyParameter:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'CodePipeline Logs Policy Arn'
+            Type: String
+            Name: '/managed-policies/build-logs'
+            Value: !Ref LogsPolicy
+
+Outputs:
+    ArtifactStoreBucket:
+        Description: 'Artifacts Store Bucket'
+        Value: !Ref ArtifactStore
+    ArtifactStoreBucketArn:
+        Description: 'Artifacts Store Bucket Arn'
+        Value: !GetAtt ArtifactStore.Arn
+
+    ArtifactStoreParameter:
+        Value: !Ref ArtifactStoreParameter
+    GithubTokenParameter:
+        Value: !Ref GithubTokenParameter
+
+    ArtifactsStorePolicy:
+        Description: 'Artifacts Store Bucket Policy'
+        Value: !Ref ArtifactStorePolicy
+    ArtifactsStorePolicyPaameter:
+        Value: !Ref ArtifactStorePolicyParameter
+
+    LogsPolicy:
+        Description: 'Logs Policy'
+        Value: !Ref LogsPolicy
+    LogsPolicyPaameter:
+        Value: !Ref LogsPolicyParameter
