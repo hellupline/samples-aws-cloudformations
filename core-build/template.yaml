@@ -55,15 +55,15 @@ Resources:
         Properties:
             Description: 'Artifacts Store'
             Type: String
-            Name: '/artifacts-store'
+            Name: '/core/build/artifacts-store'
             Value: !Ref ArtifactStore
 
     GithubTokenParameter:
         Type: AWS::SSM::Parameter
         Properties:
-            Description: 'Github Token for HellUpLine'
+            Description: 'Github Token for CodePipeline'
             Type: String
-            Name: '/github/token/hellupline'
+            Name: '/core/build/github/token'
             Value: !Ref GithubToken
 
     #
@@ -89,7 +89,7 @@ Resources:
         Properties:
             Description: 'Artifacts Store Policy Arn'
             Type: String
-            Name: '/managed-policies/artifacts-store'
+            Name: '/core/build/managed-policies/artifacts-store'
             Value: !Ref ArtifactStorePolicy
 
     LogsPolicy:
@@ -113,7 +113,7 @@ Resources:
         Properties:
             Description: 'CodePipeline Logs Policy Arn'
             Type: String
-            Name: '/managed-policies/build-logs'
+            Name: '/core/build/managed-policies/logs'
             Value: !Ref LogsPolicy
 
 Outputs:
@@ -123,20 +123,24 @@ Outputs:
     ArtifactStoreBucketArn:
         Description: 'Artifacts Store Bucket Arn'
         Value: !GetAtt ArtifactStore.Arn
-
     ArtifactStoreParameter:
+        Description: 'SSM Parameter for ArtifactStore'
         Value: !Ref ArtifactStoreParameter
+
     GithubTokenParameter:
+        Description: 'SSM Parameter with Github OAuth Token'
         Value: !Ref GithubTokenParameter
 
-    ArtifactsStorePolicy:
+    ArtifactStorePolicy:
         Description: 'Artifacts Store Bucket Policy'
         Value: !Ref ArtifactStorePolicy
-    ArtifactsStorePolicyPaameter:
+    ArtifactStorePolicyParameter:
+        Description: 'SSM Parameter for ArtifactStorePolicy'
         Value: !Ref ArtifactStorePolicyParameter
 
     LogsPolicy:
         Description: 'Logs Policy'
         Value: !Ref LogsPolicy
-    LogsPolicyPaameter:
+    LogsPolicyParameter:
+        Description: 'SSM Parameter for LogsPolicy'
         Value: !Ref LogsPolicyParameter
