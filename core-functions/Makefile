@@ -1,5 +1,7 @@
 STACK_NAME=core-functions
 
+CORE_BUILD_STACK_NAME=core-build
+
 AWS_PROFILE=default
 AWS_REGION=us-east-1
 
@@ -15,7 +17,7 @@ all: packaged.yaml
 	aws cloudformation deploy \
 		--profile=$(AWS_PROFILE) \
 		--region=$(AWS_REGION) \
-		--capabilities=CAPABILITY_IAM \
+		--capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM \
 		--no-fail-on-empty-changeset \
 		--stack-name=$(STACK_NAME) \
 		--template-file=$<
@@ -33,7 +35,7 @@ all: packaged.yaml
 		--output table
 
 
-packaged.yaml: template.yaml cloudfront_create_invalidation/app.py
+packaged.yaml: template.yaml cloudfront_create_invalidation.yaml cloudfront_create_invalidation/app.py
 	aws cloudformation package \
 		--profile=$(AWS_PROFILE) \
 		--region=$(AWS_REGION) \

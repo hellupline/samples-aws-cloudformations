@@ -14,36 +14,10 @@ Conditions: {}
 
 Resources:
     CloudfrontCreateInvalidation:
-        Type: AWS::Serverless::Function
+        Type: AWS::CloudFormation::Stack
         Properties:
-            CodeUri: cloudfront_create_invalidation/
-            Handler: app.lambda_handler
-            Runtime: python3.7
-            Timeout: 3
-            Environment: {}
-            Events: {}
-            Policies:
-              - CodePipelineLambdaExecutionPolicy: {}
-              - Version: '2012-10-17'
-                Statement:
-                  - Effect: Allow
-                    Action:
-                      - 'cloudfront:CreateInvalidation'
-                    Resource:
-                      - '*'
+            TemplateURL: './cloudfront_create_invalidation.yaml'
+            Parameters: {}
+            TimeoutInMinutes: 15
 
-    CloudfrontCreateInvalidationParameter:
-        Type: AWS::SSM::Parameter
-        Properties:
-            Description: 'CloudfrontCreateInvalidation Function Arn'
-            Type: String
-            Name: '/core/functions/cloudfront-create-invalidation'
-            Value: !GetAtt CloudfrontCreateInvalidation.Arn
-
-Outputs:
-    CloudfrontCreateInvalidation:
-        Description: 'Cloudfront Cretate Invalidation Function'
-        Value: !Ref CloudfrontCreateInvalidation
-    CloudfrontCreateInvalidationParameter:
-        Description: 'SSM Parameter for CloudfrontCreateInvalidation'
-        Value: !Ref CloudfrontCreateInvalidationParameter
+Outputs: {}
