@@ -32,18 +32,54 @@ Resources:
                     Resource:
                       - '*'
 
-    Parameter:
+    Policy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            Description: 'CloudFront create invalidation invoke Policy'
+            Path: /
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 'lambda:InvokeFunction'
+                    Resource:
+                      - !GetAtt Function.Arn
+
+    ParameterArn:
         Type: AWS::SSM::Parameter
         Properties:
-            Description: 'CloudfrontCreateInvalidation Function Arn'
+            Description: 'CloudFront create invalidation function Arn'
             Type: String
-            Name: '/core/functions/cloudfront-create-invalidation'
-            Value: !GetAtt CloudfrontCreateInvalidation.Arn
+            Name: '/core/functions/cloudfront-create-invalidation/arn'
+            Value: !GetAtt Function.Arn
+
+    ParameterName:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'CloudFront create invalidation function Name'
+            Type: String
+            Name: '/core/functions/cloudfront-create-invalidation/name'
+            Value: !Ref Function
+
+    ParameterPolicy:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Description: 'Function Invoke Policy Arn'
+            Type: String
+            Name: '/core/funcitons/cloudfront-create-invalidation/managed-policy'
+            Value: !Ref Policy
 
 Outputs:
     Function:
-        Description: 'Cloudfront Cretate Invalidation Function'
+        Description: Cloudfront Cretate Invalidation Function
         Value: !Ref Function
-    Parameter:
-        Description: 'SSM Parameter for CloudfrontCreateInvalidation'
-        Value: !Ref Parameter
+    Arn:
+        Description: SSM Parameter for Function
+        Value: !Ref ParameterArn
+    Name:
+        Description: SSM Parameter for Function
+        Value: !Ref ParameterName
+    Policy:
+        Description: SSM Parameter for Function
+        Value: !Ref ParameterPolicy

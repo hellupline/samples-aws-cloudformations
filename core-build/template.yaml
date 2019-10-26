@@ -55,7 +55,7 @@ Resources:
         Properties:
             Description: 'Artifacts Store'
             Type: String
-            Name: '/core/build/artifacts-store'
+            Name: '/core/build/artifact-store'
             Value: !Ref ArtifactStore
 
     GithubTokenParameter:
@@ -89,7 +89,7 @@ Resources:
         Properties:
             Description: 'Artifacts Store Policy Arn'
             Type: String
-            Name: '/core/build/managed-policies/artifacts-store'
+            Name: '/core/build/managed-policies/artifact-store'
             Value: !Ref ArtifactStorePolicy
 
     LogsPolicy:
